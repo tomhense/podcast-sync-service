@@ -1,10 +1,12 @@
 // ... other imports ...
 import { PodcastService } from './podcast.service';
-import { CreateSubscriptionDto, CreateEpisodeActionDto } from './dto'; // Define these DTOs based on the API
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { EpisodeAction } from './entities/episode-action.entity';
+import { CreateSubscriptionDto } from './dto';
 
 @Controller('gpoddersync')
 export class PodcastController {
-  // ... Constructor and other methods ...
+  constructor(private readonly podcastService: PodcastService) {}
 
   @Get('subscriptions')
   async getSubscriptions(@Query('since') since?: number): Promise<any> {
@@ -28,7 +30,7 @@ export class PodcastController {
 
   @Post('episode_action/create')
   async createEpisodeAction(
-    @Body() createEpisodeActionDto: CreateEpisodeActionDto[],
+    @Body() createEpisodeActionDto: EpisodeAction[],
   ): Promise<any> {
     return this.podcastService.createEpisodeAction(createEpisodeActionDto);
   }
