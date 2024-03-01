@@ -1,8 +1,8 @@
 // ... other imports ...
 import { PodcastService } from './podcast.service';
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { EpisodeAction } from './entities/episode-action.entity';
-import { CreateSubscriptionDto } from './dto';
+import { EpisodeAction } from '../entities/episode-action.entity';
+import { CreateSubscriptionDto } from './podcast.dto';
 
 @Controller('gpoddersync')
 export class PodcastController {

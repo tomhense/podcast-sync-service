@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { CliModule } from './cli/console.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { AuthModule } from './auth/auth.module';
       synchronize: true, // Note: Only use in development. In prod, use migrations
     }),
     AuthModule,
+    CliModule,
   ],
   // ... other modules, controllers, providers ...
 })

@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AuthService } from '../auth.service';
+import { AuthService } from './auth.service';
 import { BasicStrategy } from './basic.stratergy';
 import { User } from '../entities/user.entity';
-import { UserService } from '../user.service';
+import { UserService } from '../user/user.service';
 
 @Module({
   imports: [

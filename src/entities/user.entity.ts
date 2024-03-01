@@ -10,7 +10,7 @@ export class User {
   username: string;
 
   @Column()
-  password: string; // Should be hashed in a real application
+  password: string; // Contains the hashed and salted password
 
   @OneToMany(() => Device, (device) => device.user, {
     cascade: true,

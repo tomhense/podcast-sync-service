@@ -1,10 +1,10 @@
 import { Injectable, UseGuards } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Subscription } from './entities/subscription.entity';
-import { EpisodeAction } from './entities/episode-action.entity';
-import { BasicAuthGuard } from './basic-auth.guard';
-import { Device } from './entities/device.entity';
+import { Subscription } from '../entities/subscription.entity';
+import { EpisodeAction } from '../entities/episode-action.entity';
+import { BasicAuthGuard } from '../auth/basic-auth.guard';
+import { Device } from '../entities/device.entity';
 
 @Injectable()
 export class PodcastService {
