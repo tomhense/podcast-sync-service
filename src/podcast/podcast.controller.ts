@@ -1,10 +1,11 @@
-// ... other imports ...
 import { PodcastService } from './podcast.service';
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { EpisodeAction } from '../entities/episode-action.entity';
 import { CreateSubscriptionDto } from './podcast.dto';
+import { BasicAuthGuard } from 'src/auth/basic-auth.guard';
 
 @Controller('gpoddersync')
+@UseGuards(BasicAuthGuard)
 export class PodcastController {
   constructor(private readonly podcastService: PodcastService) {}
 

@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { CliModule } from './cli/console.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { PodcastModule } from './podcast/podcast.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -13,7 +17,10 @@ import { CliModule } from './cli/console.module';
     }),
     AuthModule,
     CliModule,
+    PodcastModule,
+    UserModule,
   ],
-  // ... other modules, controllers, providers ...
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

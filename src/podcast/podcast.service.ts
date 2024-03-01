@@ -1,10 +1,8 @@
-import { Injectable, UseGuards } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Subscription } from '../entities/subscription.entity';
 import { EpisodeAction } from '../entities/episode-action.entity';
-import { BasicAuthGuard } from '../auth/basic-auth.guard';
-import { Device } from '../entities/device.entity';
 
 @Injectable()
 export class PodcastService {
@@ -13,23 +11,18 @@ export class PodcastService {
     private subscriptionRepository: Repository<Subscription>,
     @InjectRepository(EpisodeAction)
     private episodeActionRepository: Repository<EpisodeAction>,
-    @InjectRepository(Device)
-    private deviceRepository: Repository<Device>,
   ) {}
 
-  @UseGuards(BasicAuthGuard)
   async getSubscriptions(since?: number): Promise<any> {
     const queryBuilder =
       this.subscriptionRepository.createQueryBuilder('subscription');
     if (since) {
       // Assuming 'since' is a timestamp for when the last change was fetched
-      // Replace this with appropriate logic if your timestamp handling is different
       queryBuilder.where('subscription.lastUpdate > :since', { since });
     }
     return await queryBuilder.getMany();
   }
 
-  @UseGuards(BasicAuthGuard)
   async createSubscriptionChange(
     add: string[],
     remove: string[],
@@ -61,7 +54,6 @@ export class PodcastService {
     return { timestamp: Math.floor(Date.now() / 1000) };
   }
 
-  @UseGuards(BasicAuthGuard)
   async getEpisodeActions(since?: number): Promise<any> {
     const queryBuilder =
       this.episodeActionRepository.createQueryBuilder('episode_action');
@@ -77,41 +69,10 @@ export class PodcastService {
     };
   }
 
-  @UseGuards(BasicAuthGuard)
   async createEpisodeAction(episodeActions: EpisodeAction[]): Promise<any> {
     await this.episodeActionRepository.save(episodeActions);
 
     // Example response: returning current UNIX timestamp
     return { timestamp: Math.floor(Date.now() / 1000) };
-  }
-
-  @UseGuards(BasicAuthGuard)
-  async updateDevice(
-    userId: number,
-    deviceId: string,
-    caption: string,
-    type: string,
-  ): Promise<Device> {
-    let device = await this.deviceRepository.findOne({
-      where: { deviceId, user: { id: userId } },
-    });
-    if (device) {
-      device.caption = caption;
-      device.type = type;
-      await this.deviceRepository.save(device);
-    } else {
-      device = this.deviceRepository.create({
-        deviceId,
-        caption,
-        type,
-        user: { id: userId },
-      });
-      await this.deviceRepository.save(device);
-    }
-    return device;
-  }
-
-  async getSyncStatus(userId: number): Promise<Device[]> {
-    return this.deviceRepository.find({ where: { user: { id: userId } } });
   }
 }
