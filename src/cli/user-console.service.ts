@@ -1,6 +1,6 @@
 import { ConsoleService } from 'nestjs-console';
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { UserService } from '../user/user.service';
+import { UserService } from './user/user.service';
 
 @Injectable()
 export class UserConsoleService implements OnModuleInit {
@@ -18,7 +18,7 @@ export class UserConsoleService implements OnModuleInit {
         command: 'createUser <username> <password>',
         description: 'Create a new user',
       },
-      this.createUser,
+      this.createUser.bind(this), // bind the context (this) to the function (createUser)
       cli, // attach the command to the root cli
     );
 
@@ -27,7 +27,7 @@ export class UserConsoleService implements OnModuleInit {
         command: 'deleteUser <username>',
         description: 'Delete a user',
       },
-      this.deleteUser,
+      this.deleteUser.bind(this), // bind the context (this) to the function (deleteUser)
       cli,
     );
 
@@ -36,7 +36,7 @@ export class UserConsoleService implements OnModuleInit {
         command: 'changePassword <username> <password>',
         description: 'Change a user password',
       },
-      this.changePassword,
+      this.changePassword.bind(this), // bind the context (this) to the function (changePassword
       cli,
     );
   }

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
-import { bcrypt } from 'bcrypt';
+import { User } from '../../entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 const SALT_ROUNDS = 10;
 
@@ -18,6 +18,14 @@ export class UserService {
   }
 
   async createUser(username: string, plainPassword: string): Promise<User> {
+    // Check if the username is already taken
+    const existingUser = await this.userRepository.findOne({
+      where: { username },
+    });
+    if (existingUser) {
+      throw new Error('Username already taken');
+    }
+
     const hashedPassword = await bcrypt.hash(plainPassword, SALT_ROUNDS); // bcrypt is used for hashing passwords securely
     const user = this.userRepository.create({
       username,

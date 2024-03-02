@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Subscription } from '../entities/subscription.entity';
 import { EpisodeAction } from '../entities/episode-action.entity';
+import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class PodcastService {
@@ -11,55 +12,64 @@ export class PodcastService {
     private subscriptionRepository: Repository<Subscription>,
     @InjectRepository(EpisodeAction)
     private episodeActionRepository: Repository<EpisodeAction>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
-  async getSubscriptions(since?: number): Promise<any> {
-    const queryBuilder =
-      this.subscriptionRepository.createQueryBuilder('subscription');
+  async getSubscriptions(username: string, since?: number): Promise<any> {
+    const userId = (await this.userRepository.findOne({ where: { username } }))
+      .id;
+
+    const queryBuilder = this.subscriptionRepository
+      .createQueryBuilder('subscription')
+      .where('subscription.user.id = :userId', { userId });
+
     if (since) {
-      // Assuming 'since' is a timestamp for when the last change was fetched
-      queryBuilder.where('subscription.lastUpdate > :since', { since });
+      queryBuilder.andWhere('subscription.lastUpdate > :since', { since });
     }
+
     return await queryBuilder.getMany();
   }
 
   async createSubscriptionChange(
+    username: string,
     add: string[],
     remove: string[],
   ): Promise<any> {
-    // Process removals
+    const userId = await this.userRepository.findOne({ where: { username } });
+
+    // Process removals for the user
     if (remove && remove.length > 0) {
       await this.subscriptionRepository
         .createQueryBuilder()
         .delete()
         .from(Subscription)
-        .where('url IN (:...remove)', { remove })
+        .where('url IN (:...remove) AND user.id = :userId', { remove, userId })
         .execute();
     }
 
-    // Process additions
+    // Process additions for the user
     if (add && add.length > 0) {
-      for (const url of add) {
-        let subscription = await this.subscriptionRepository.findOne({
-          where: { url },
-        });
-        if (!subscription) {
-          subscription = this.subscriptionRepository.create({ url });
-          await this.subscriptionRepository.save(subscription);
-        }
-      }
+      const userSubscriptions = add.map((url) => ({
+        url,
+        user: { id: userId },
+      }));
+      await this.subscriptionRepository.save(userSubscriptions);
     }
 
     // Example response: returning current UNIX timestamp
     return { timestamp: Math.floor(Date.now() / 1000) };
   }
 
-  async getEpisodeActions(since?: number): Promise<any> {
-    const queryBuilder =
-      this.episodeActionRepository.createQueryBuilder('episode_action');
+  async getEpisodeActions(username: string, since?: number): Promise<any> {
+    const userId = await this.userRepository.findOne({ where: { username } });
+
+    const queryBuilder = this.episodeActionRepository
+      .createQueryBuilder('episode_action')
+      .where('episode_action.user.id = :userId', { userId });
 
     if (since) {
-      queryBuilder.where('episode_action.timestamp > :since', { since });
+      queryBuilder.andWhere('episode_action.timestamp > :since', { since });
     }
 
     const actions = await queryBuilder.getMany();
@@ -69,8 +79,18 @@ export class PodcastService {
     };
   }
 
-  async createEpisodeAction(episodeActions: EpisodeAction[]): Promise<any> {
-    await this.episodeActionRepository.save(episodeActions);
+  async createEpisodeAction(
+    username: string,
+    episodeActions: EpisodeAction[],
+  ): Promise<any> {
+    const userId = await this.userRepository.findOne({ where: { username } });
+
+    // Add the user to each episode action and save
+    const userEpisodeActions = episodeActions.map((action) => ({
+      ...action,
+      user: { id: userId },
+    }));
+    await this.episodeActionRepository.save(userEpisodeActions);
 
     // Example response: returning current UNIX timestamp
     return { timestamp: Math.floor(Date.now() / 1000) };
