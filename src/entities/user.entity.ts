@@ -21,11 +21,6 @@ export class User {
   @Column()
   password: string; // Contains the hashed and salted password
 
-  @OneToMany(() => Device, (device) => device.user, {
-    cascade: true,
-  })
-  devices: Device[];
-
   @ManyToMany(() => Subscription)
   @JoinTable()
   subscriptions: Subscription[];
