@@ -12,7 +12,7 @@ import { EpisodeAction } from '../entities/episode-action.entity';
 import { CreateSubscriptionDto } from './podcast.dto';
 import { AuthGuard } from '@nestjs/passport';
 
-@Controller('gpoddersync')
+@Controller('index.php/apps/gpoddersync')
 @UseGuards(AuthGuard('basic'))
 export class PodcastController {
   constructor(private readonly podcastService: PodcastService) {}

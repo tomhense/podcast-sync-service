@@ -7,4 +7,7 @@ export class Subscription {
 
   @Column({ unique: true })
   url: string; // The podcast URL
+
+  @Column()
+  lastUpdate: Date;
 }

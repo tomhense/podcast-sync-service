@@ -20,9 +20,10 @@ export class PodcastService {
     const userId = (await this.userRepository.findOne({ where: { username } }))
       .id;
 
-    const queryBuilder = this.subscriptionRepository
-      .createQueryBuilder('subscription')
-      .where('subscription.user.id = :userId', { userId });
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('user')
+      .where('user.id = :userId', { userId })
+      .innerJoinAndSelect('user.subscriptions', 'subscription');
 
     if (since) {
       queryBuilder.andWhere('subscription.lastUpdate > :since', { since });
@@ -36,7 +37,8 @@ export class PodcastService {
     add: string[],
     remove: string[],
   ): Promise<any> {
-    const userId = await this.userRepository.findOne({ where: { username } });
+    const userId = (await this.userRepository.findOne({ where: { username } }))
+      .id;
 
     // Process removals for the user
     if (remove && remove.length > 0) {
@@ -53,16 +55,18 @@ export class PodcastService {
       const userSubscriptions = add.map((url) => ({
         url,
         user: { id: userId },
+        lastUpdate: Math.floor(Date.now() / 1000),
       }));
       await this.subscriptionRepository.save(userSubscriptions);
     }
 
-    // Example response: returning current UNIX timestamp
+    // Return current UNIX timestamp
     return { timestamp: Math.floor(Date.now() / 1000) };
   }
 
   async getEpisodeActions(username: string, since?: number): Promise<any> {
-    const userId = await this.userRepository.findOne({ where: { username } });
+    const userId = (await this.userRepository.findOne({ where: { username } }))
+      .id;
 
     const queryBuilder = this.episodeActionRepository
       .createQueryBuilder('episode_action')
@@ -83,16 +87,18 @@ export class PodcastService {
     username: string,
     episodeActions: EpisodeAction[],
   ): Promise<any> {
-    const userId = await this.userRepository.findOne({ where: { username } });
+    const userId = (await this.userRepository.findOne({ where: { username } }))
+      .id;
 
     // Add the user to each episode action and save
     const userEpisodeActions = episodeActions.map((action) => ({
       ...action,
       user: { id: userId },
     }));
+
     await this.episodeActionRepository.save(userEpisodeActions);
 
-    // Example response: returning current UNIX timestamp
+    // Return current UNIX timestamp
     return { timestamp: Math.floor(Date.now() / 1000) };
   }
 }

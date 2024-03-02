@@ -36,6 +36,20 @@ export class UserService {
 
   async deleteUser(username: string): Promise<void> {
     const user = await this.userRepository.findOne({ where: { username } });
+
+    // Delete associated subscriptions and episode actions
+    await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'subscriptions')
+      .of(user)
+      .remove([]);
+
+    await this.userRepository
+      .createQueryBuilder()
+      .relation(User, 'episodeActions')
+      .of(user)
+      .remove([]);
+
     await this.userRepository.remove(user);
   }
 

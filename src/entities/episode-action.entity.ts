@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+} from 'typeorm';
+import { User } from './user.entity';
 
 @Entity()
 export class EpisodeAction {
@@ -28,4 +35,7 @@ export class EpisodeAction {
 
   @Column({ type: 'int', nullable: true })
   total: number;
+
+  @ManyToOne(() => User, (user) => user.episodeActions)
+  user: User;
 }
