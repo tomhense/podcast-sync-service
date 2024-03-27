@@ -6,7 +6,6 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
-import { Device } from './device.entity';
 import { Subscription } from './subscription.entity';
 import { EpisodeAction } from './episode-action.entity';
 

@@ -1,10 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  ManyToOne,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -24,8 +18,8 @@ export class EpisodeAction {
   @Column()
   action: string;
 
-  @Column({ type: 'int' })
-  timestamp: number;
+  @Column()
+  timestamp: Date;
 
   @Column({ type: 'int', nullable: true })
   position: number;

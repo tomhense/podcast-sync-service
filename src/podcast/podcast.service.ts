@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Subscription } from '../entities/subscription.entity';
 import { EpisodeAction } from '../entities/episode-action.entity';
-import { User } from 'src/entities/user.entity';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class PodcastService {
@@ -37,8 +37,7 @@ export class PodcastService {
     add: string[],
     remove: string[],
   ): Promise<any> {
-    const userId = (await this.userRepository.findOne({ where: { username } }))
-      .id;
+    const user = await this.userRepository.findOne({ where: { username } });
 
     // Process removals for the user
     if (remove && remove.length > 0) {
@@ -46,7 +45,10 @@ export class PodcastService {
         .createQueryBuilder()
         .delete()
         .from(Subscription)
-        .where('url IN (:...remove) AND user.id = :userId', { remove, userId })
+        .where('url IN (:...remove) AND user.id = :userId', {
+          remove: [...remove],
+          userId: user.id,
+        })
         .execute();
     }
 
@@ -54,14 +56,16 @@ export class PodcastService {
     if (add && add.length > 0) {
       const userSubscriptions = add.map((url) => ({
         url,
-        user: { id: userId },
-        lastUpdate: Math.floor(Date.now() / 1000),
+        lastUpdate: new Date().toISOString().slice(0, -1),
+        user,
       }));
+
       await this.subscriptionRepository.save(userSubscriptions);
     }
 
     // Return current UNIX timestamp
-    return { timestamp: Math.floor(Date.now() / 1000) };
+    //return { timestamp: Math.floor(Date.now() / 1000) };
+    return { timestamp: new Date().toISOString().slice(0, -1) };
   }
 
   async getEpisodeActions(username: string, since?: number): Promise<any> {
@@ -79,7 +83,7 @@ export class PodcastService {
     const actions = await queryBuilder.getMany();
     return {
       actions,
-      timestamp: Math.floor(Date.now() / 1000),
+      timestamp: new Date().toISOString().slice(0, -1),
     };
   }
 
@@ -99,6 +103,6 @@ export class PodcastService {
     await this.episodeActionRepository.save(userEpisodeActions);
 
     // Return current UNIX timestamp
-    return { timestamp: Math.floor(Date.now() / 1000) };
+    return { timestamp: new Date().toISOString().slice(0, -1) };
   }
 }
