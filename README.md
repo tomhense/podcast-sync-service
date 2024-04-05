@@ -10,13 +10,13 @@ The problem is there currently exist three major gpodder specifications:
 
 Most podcast clients use either (or both) the nextcloud-gpodder and the new gpodder.net specification but rarely the old divergent official gpodder specification (or so it seems to me).
 There already exist some other selfhosted gpodder servers like [gpodder2go](https://github.com/oxtyped/gpodder2go#limitations/) or [micro-gpodder-server](https://github.com/bohwaz/micro-gpodder-server) but these implement the old divergent gpodder specification.
-The fact that there are two different gpodder.net specifications is really confusing and projects to implement non interchangeable specifications. For more info look [here](https://github.com/oxtyped/gpodder2go#limitations/) and [here](https://bugs.kde.org/show_bug.cgi?id=474562).
+
+The fact that there are two different gpodder.net specifications is really confusing and causes projects to implement non interchangeable specifications. For more info look [here](https://github.com/oxtyped/gpodder2go#limitations/) and [here](https://bugs.kde.org/show_bug.cgi?id=474562).
 So I created this project so I could use a have a selfhosted server that implements that nextcloud-gpodder specification without actually using a nextcloud server. The clients I mainly use this for are [Antennapod](https://antennapod.org) and [Kasts](https://apps.kde.org/kasts/).
 
 # Installation
 
-1. Grab the docker image from the docker packages
-2. Use the `docker-compose.yaml` config from this repository
+Simply use [`docker-compose.yaml`](https://github.com/tomhense/podcast-sync-service/blob/master/docker-compose.yaml) config from this repository. For SSl/TLS protection you should probably setup a reverse proxy like nginx.
 
 ### Supported environment variables
 

@@ -1,9 +1,9 @@
 version: "3"
 
 services:
-  moodle-content-observer:
-    image: ghcr.io/tomhense/podcastsyncservice:master
-    container_name: podcastsyncservice
+  podcast-sync-service:
+    image: ghcr.io/tomhense/podcast-sync-service:master
+    container_name: podcast-sync-service
     restart: unless-stopped
     volumes:
       - "data:/usr/src/app/db"
