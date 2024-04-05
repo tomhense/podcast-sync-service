@@ -18,6 +18,13 @@ So I created this project so I could use a have a selfhosted server that impleme
 
 Simply use [`docker-compose.yaml`](https://github.com/tomhense/podcast-sync-service/blob/master/docker-compose.yaml) config from this repository. For SSl/TLS protection you should probably setup a reverse proxy like nginx.
 
+### User managment
+
+- User managment is done through a simple cli client
+- Create user: `docker-compose exec npm run console:dev createUser someuser somepassword`
+- Change password: `docker-compose exec npm run console:dev changePassword someuser someotherpassword`
+- Delete user: `docker-compose exec npm run console:dev deleteUser someuser`
+
 ### Supported environment variables
 
 - `PREFIX`: Sets the nestjs global prefix, this is useful when hosting under a url subdirectory (by default not set)

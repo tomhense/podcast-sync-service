@@ -5,7 +5,7 @@
 
 # Get subscriptions
 
-`GET` `https://nextcloud.hense.cloud/index.php/apps/gpoddersync/subscriptions?since=0`
+`GET` `https://nextcloudinstance.com/index.php/apps/gpoddersync/subscriptions?since=0`
 
 ### Response
 
@@ -19,7 +19,7 @@
 
 # Create subscription changes
 
-`POST` `https://nextcloud.hense.cloud/index.php/apps/gpoddersync/subscription_change/create`
+`POST` `https://nextcloudinstance.com/index.php/apps/gpoddersync/subscription_change/create`
 
 ### Request
 
@@ -40,7 +40,7 @@
 
 # Get episode actions
 
-`GET` `https://nextcloud.hense.cloud/index.php/apps/gpoddersync/episode_action?since=0`
+`GET` `https://nextcloudinstance.com/index.php/apps/gpoddersync/episode_action?since=0`
 
 ### Response
 
@@ -64,7 +64,7 @@
 
 # Create episode actions
 
-`POST` `https://nextcloud.hense.cloud/index.php/apps/gpoddersync/episode_action/create`
+`POST` `https://nextcloudinstance.com/index.php/apps/gpoddersync/episode_action/create`
 
 ### Request
 
