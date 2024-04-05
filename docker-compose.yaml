@@ -7,5 +7,7 @@ services:
     restart: unless-stopped
     volumes:
       - "data:/usr/src/app/db"
+    ports:
+      - "3000:3000"
 volumes:
   data:
