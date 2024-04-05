@@ -8,8 +8,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { EpisodeAction } from '../entities/episode-action.entity';
-import { CreateSubscriptionDto } from './podcast.dto';
+import { CreateEpisodeActionDto, CreateSubscriptionDto } from './podcast.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('index.php/apps/gpoddersync')
@@ -54,7 +53,7 @@ export class PodcastController {
   @Post('episode_action/create')
   async createEpisodeAction(
     @Req() req,
-    @Body() createEpisodeActionDto: EpisodeAction[],
+    @Body() createEpisodeActionDto: CreateEpisodeActionDto[],
   ): Promise<any> {
     const username = req.user.username;
 

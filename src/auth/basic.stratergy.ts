@@ -1,12 +1,10 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import * as passportHttp from 'passport-http';
+import { BasicStrategy as Stratergy } from 'passport-http';
 
 @Injectable()
-export class BasicStrategy extends PassportStrategy(
-  passportHttp.BasicStrategy,
-) {
+export class BasicStrategy extends PassportStrategy(Stratergy, 'basic') {
   constructor(private authService: AuthService) {
     super({ passReqToCallback: true });
   }
