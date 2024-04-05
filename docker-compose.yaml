@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  moodle-content-observer:
+    image: ghcr.io/tomhense/podcastsyncservice:master
+    container_name: podcastsyncservice
+    restart: unless-stopped
+    volumes:
+      - "data:/usr/src/app/db"
+volumes:
+  data:

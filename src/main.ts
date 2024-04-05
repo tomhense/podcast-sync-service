@@ -6,9 +6,6 @@ async function bootstrap() {
   const PREFIX = process.env.FRONTEND_URL;
   const PORT = parseInt(process.env.PORT) || 3000;
 
-  // Force timezone to UTC
-  process.env.TZ = 'UTC';
-
   const app = await NestFactory.create(AppModule);
   if (PREFIX) app.setGlobalPrefix(PREFIX);
 
