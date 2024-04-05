@@ -21,9 +21,8 @@ export class PodcastController {
     @Req() req,
     @Query('since') since?: number,
   ): Promise<any> {
-    const username = req.user.username;
-
-    return this.podcastService.getSubscriptions(username, since);
+    const sinceDate = since ? new Date(since) : undefined;
+    return this.podcastService.getSubscriptions(req.user, sinceDate);
   }
 
   @Post('subscription_change/create')
@@ -31,10 +30,8 @@ export class PodcastController {
     @Req() req,
     @Body() createSubscriptionDto: CreateSubscriptionDto,
   ): Promise<any> {
-    const username = req.user.username;
-
     return this.podcastService.createSubscriptionChange(
-      username,
+      req.user,
       createSubscriptionDto.add,
       createSubscriptionDto.remove,
     );
@@ -45,9 +42,8 @@ export class PodcastController {
     @Req() req,
     @Query('since') since?: number,
   ): Promise<any> {
-    const username = req.user.username;
-
-    return this.podcastService.getEpisodeActions(username, since);
+    const sinceDate = since ? new Date(since) : undefined;
+    return this.podcastService.getEpisodeActions(req.user, sinceDate);
   }
 
   @Post('episode_action/create')
@@ -55,10 +51,8 @@ export class PodcastController {
     @Req() req,
     @Body() createEpisodeActionDto: CreateEpisodeActionDto[],
   ): Promise<any> {
-    const username = req.user.username;
-
     return this.podcastService.createEpisodeAction(
-      username,
+      req.user,
       createEpisodeActionDto,
     );
   }

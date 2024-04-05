@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from '../cli/user/user.service'; // You should also create a UserService
 import * as bcrypt from 'bcrypt';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -8,9 +9,13 @@ export class AuthService {
     private userService: UserService, // Handles operations with the user repository
   ) {}
 
-  async validateUser(username: string, pass: string): Promise<boolean> {
+  async validateUser(username: string, pass: string): Promise<User> {
     const user = await this.userService.findOne(username);
 
-    return user && (await bcrypt.compare(pass, user.password));
+    if (user && (await bcrypt.compare(pass, user.password))) {
+      return user;
+    } else {
+      return null;
+    }
   }
 }
