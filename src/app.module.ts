@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PodcastModule } from './podcast/podcast.module';
 import { UserModule } from './cli/user/user.module';
+import { LoginModule } from './login/login.module';
 
 @Module({
   imports: [
@@ -15,10 +16,15 @@ import { UserModule } from './cli/user/user.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true, // Note: Only use in development. In prod, use migrations
     }),
+    /*ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'static'),
+      renderPath: '/static/**',
+    }),*/
     AuthModule,
     CliModule,
     PodcastModule,
     UserModule,
+    LoginModule,
   ],
   controllers: [AppController],
   providers: [AppService],

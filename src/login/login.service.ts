@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { LoginController } from './login.controller';
 import { randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Flow } from 'src/entities/flow.entity';
-import { AppController } from 'src/app.controller';
 import { AppPassword } from 'src/entities/app-password.entity';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from 'src/auth/auth.service';
@@ -12,8 +11,15 @@ import { AuthService } from 'src/auth/auth.service';
 const SALT_ROUNDS = 10;
 const FLOW_EXPIRATION_DURATION_MS = 1000 * 60 * 15; // 15 minutes
 
+const SERVER_URL =
+  (process.env.SERVER_URL || 'http://localhost:3000').replace(/\/$/, '') +
+  (process.env.GLOBAL_PREFIX || '');
+
 @Injectable()
 export class LoginService {
+  LOGIN_CONTROLLER_PATH =
+    SERVER_URL + '/' + Reflect.getMetadata('path', LoginController);
+
   constructor(
     @InjectRepository(Flow) private flowRepository: Repository<Flow>,
     @InjectRepository(AppPassword)
@@ -32,15 +38,6 @@ export class LoginService {
   }
 
   async generateFlow(): Promise<any> {
-    const loginPagePath = Reflect.getMetadata(
-      'path',
-      LoginController.prototype.loginPage,
-    );
-    const pollEndpointPath = Reflect.getMetadata(
-      'path',
-      LoginController.prototype.poll,
-    );
-
     // Generate a random tokens
     const flowId = randomBytes(128).toString('hex');
     const flowToken = randomBytes(128).toString('hex');
@@ -53,14 +50,14 @@ export class LoginService {
     });
 
     setTimeout(
-      this.removeExpiredFlows,
+      this.removeExpiredFlows.bind(this),
       FLOW_EXPIRATION_DURATION_MS + 1000 * 60,
     ); // Add 60 seconds to the expiration duration to make sure all expired flows are removed
 
     return {
-      login: loginPagePath,
+      login: `${this.LOGIN_CONTROLLER_PATH}/flow/${flowId}`,
       poll: {
-        endpoint: `${pollEndpointPath}/${flowId}`,
+        endpoint: `${this.LOGIN_CONTROLLER_PATH}/poll/${flowId}`,
         token: flowToken,
       },
     };
@@ -87,13 +84,14 @@ export class LoginService {
     return true;
   }
 
-  async pollFlow(flowId: string): Promise<any> {
+  async pollFlow(flowId: string, flowToken: string): Promise<any> {
     // find authenticated flow with the given token from the database
     const flow = await this.flowRepository.findOne({
-      where: { flowToken: flowId, authenticated: true },
+      where: { flowId: flowId, flowToken: flowToken, authenticated: true },
+      relations: ['user'],
     });
 
-    if (!flow) return 404;
+    if (!flow) throw new NotFoundException();
 
     // Generate a random app password
     const appPasswordPasswordPlain = randomBytes(64).toString('hex');
@@ -105,17 +103,12 @@ export class LoginService {
     });
 
     // Delete the flow from the database
-    await this.flowRepository.delete({ flowId });
-
-    const serverUrl = Reflect.getMetadata(
-      'path',
-      AppController.prototype.getHello,
-    );
+    await this.flowRepository.delete({ flowToken: flowToken });
 
     return {
       loginName: flow.user.username,
       appPassword: appPasswordPasswordPlain,
-      server: serverUrl,
+      server: SERVER_URL,
     };
   }
 }

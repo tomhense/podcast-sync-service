@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -15,6 +15,6 @@ export class Flow {
   @Column({ default: false })
   authenticated: boolean;
 
-  @Column()
+  @ManyToOne(() => User)
   user: User;
 }

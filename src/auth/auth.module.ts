@@ -6,11 +6,12 @@ import { AuthService } from './auth.service';
 import { BasicStrategy } from './basic.stratergy';
 import { User } from '../entities/user.entity';
 import { UserService } from '../cli/user/user.service';
+import { AppPassword } from 'src/entities/app-password.entity';
 
 @Module({
   imports: [
     PassportModule,
-    TypeOrmModule.forFeature([User]), // Assuming User is your entity name
+    TypeOrmModule.forFeature([User, AppPassword]), // Assuming User is your entity name
   ],
   providers: [
     AuthService,

@@ -17,7 +17,8 @@ async function bootstrap() {
   consoleService.init([]);
 
   app.setViewEngine('ejs');
-  app.useStaticAssets(join(__dirname, '..', 'public'));
+  console.log(join(__dirname, '..', 'static'));
+  app.useStaticAssets(join(__dirname, '..', 'static'), { prefix: '/static' });
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
 
   await app.listen(PORT);

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -12,6 +12,6 @@ export class AppPassword {
   @Column()
   generatedAt: Date;
 
-  @Column()
+  @ManyToOne(() => User)
   user: User;
 }
