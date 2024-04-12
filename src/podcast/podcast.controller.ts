@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Post,
   Query,
   Req,
@@ -26,6 +27,7 @@ export class PodcastController {
   }
 
   @Post('subscription_change/create')
+  @HttpCode(200)
   async createSubscriptionChange(
     @Req() req,
     @Body() createSubscriptionDto: CreateSubscriptionDto,
@@ -47,6 +49,7 @@ export class PodcastController {
   }
 
   @Post('episode_action/create')
+  @HttpCode(200)
   async createEpisodeAction(
     @Req() req,
     @Body() createEpisodeActionDto: CreateEpisodeActionDto[],

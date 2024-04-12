@@ -4,9 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthService } from './auth.service';
 import { BasicStrategy } from './basic.stratergy';
-import { User } from '../entities/user.entity';
 import { UserService } from '../cli/user/user.service';
-import { AppPassword } from 'src/entities/app-password.entity';
+import { User } from '../entities/user.entity';
+import { AppPassword } from '../entities/app-password.entity';
 
 @Module({
   imports: [

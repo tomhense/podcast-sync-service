@@ -3,10 +3,10 @@ import { LoginController } from './login.controller';
 import { randomBytes } from 'crypto';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Flow } from 'src/entities/flow.entity';
-import { AppPassword } from 'src/entities/app-password.entity';
+import { Flow } from '../entities/flow.entity';
+import { AppPassword } from '../entities/app-password.entity';
 import * as bcrypt from 'bcrypt';
-import { AuthService } from 'src/auth/auth.service';
+import { AuthService } from '../auth/auth.service';
 
 const SALT_ROUNDS = 10;
 const FLOW_EXPIRATION_DURATION_MS = 1000 * 60 * 15; // 15 minutes

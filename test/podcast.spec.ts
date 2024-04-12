@@ -95,10 +95,14 @@ describe('PodcastController', () => {
 
   it('create subscription change remove', async () => {
     await service.createSubscriptionChange(exampleUser1, [], ['testurl1']);
+
+    await service.debug(exampleUser1);
+
     return service.getSubscriptions(exampleUser1).then((response) => {
       expect(response).toEqual(
         expect.objectContaining({
-          subscriptions: [],
+          add: [],
+          remove: expect.arrayContaining(['testurl1']),
           timestamp: expect.any(Number),
         }),
       );
@@ -111,7 +115,8 @@ describe('PodcastController', () => {
     return service.getSubscriptions(exampleUser1).then((response) => {
       expect(response).toEqual(
         expect.objectContaining({
-          subscriptions: expect.arrayContaining(['testurl1']),
+          add: expect.arrayContaining(['testurl1']),
+          remove: [],
           timestamp: expect.any(Number),
         }),
       );
@@ -123,7 +128,8 @@ describe('PodcastController', () => {
     return service.getSubscriptions(exampleUser1).then((response) => {
       expect(response).toEqual(
         expect.objectContaining({
-          subscriptions: expect.arrayContaining(['testurl1']),
+          add: expect.arrayContaining(['testurl1']),
+          remove: [],
           timestamp: expect.any(Number),
         }),
       );
@@ -137,7 +143,8 @@ describe('PodcastController', () => {
       .then((response) => {
         expect(response).toEqual(
           expect.objectContaining({
-            subscriptions: expect.arrayContaining(['testurl1']),
+            add: expect.arrayContaining(['testurl1']),
+            remove: [],
             timestamp: expect.any(Number),
           }),
         );
@@ -151,7 +158,8 @@ describe('PodcastController', () => {
       .then((response) => {
         expect(response).toEqual(
           expect.objectContaining({
-            subscriptions: [],
+            add: [],
+            remove: [],
             timestamp: expect.any(Number),
           }),
         );

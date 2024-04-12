@@ -137,7 +137,8 @@ describe('PodcastController (e2e)', () => {
       .then((response) => {
         expect(response.body).toEqual(
           expect.objectContaining({
-            subscriptions: expect.arrayContaining(['testurl1', 'testurl2']),
+            add: expect.arrayContaining(['testurl1', 'testurl2']),
+            remove: [],
             timestamp: expect.any(Number),
           }),
         );

@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Subscription } from '../entities/subscription.entity';
+import { In, MoreThan, Repository } from 'typeorm';
+import {
+  Subscription,
+  SubscriptionType,
+} from '../entities/subscription.entity';
 import { EpisodeAction } from '../entities/episode-action.entity';
 import { User } from '../entities/user.entity';
 import {
@@ -22,30 +25,28 @@ export class PodcastService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
-
   async getSubscriptions(
     user: User,
     since?: Date,
   ): Promise<SubscriptionResponseDto> {
-    const queryBuilder = this.userRepository
-      .createQueryBuilder('user')
-      .select('subscription.url', 'url')
-      .innerJoin('user.subscriptions', 'subscription')
-      .where('user.username = :username', { username: user.username });
-
-    if (since) {
-      queryBuilder.andWhere('subscription.lastUpdate > :since', {
-        since,
-      });
+    if (!since) {
+      since = new Date('1970-01-01');
     }
+    const subscriptions = await this.subscriptionRepository.find({
+      where: { user, lastUpdate: MoreThan(since) },
+      relations: ['user'],
+    });
 
-    // It is important that we use getRawMany() because we are selecting a single column and not the entity
-    const subscriptionUrls = (await queryBuilder.getRawMany()).map(
-      (sub) => sub.url,
+    const addedSubscriptions = subscriptions.filter(
+      (sub) => sub.type === SubscriptionType.ADD,
+    );
+    const removedSubscriptions = subscriptions.filter(
+      (sub) => sub.type === SubscriptionType.REMOVE,
     );
 
     return {
-      subscriptions: subscriptionUrls,
+      add: addedSubscriptions.map((sub) => sub.url),
+      remove: removedSubscriptions.map((sub) => sub.url),
       timestamp: Math.floor(Date.now() / 1000),
     };
   }
@@ -60,24 +61,56 @@ export class PodcastService {
       where: user,
       relations: ['subscriptions'],
     });
-
     if (!user) throw new Error('User not found');
 
     // Process removals for the user
     if (remove && remove.length > 0) {
-      const subscriptionsToRemove = user.subscriptions.filter((sub) =>
-        remove.includes(sub.url),
-      );
-
-      await this.subscriptionRepository.remove(subscriptionsToRemove);
+      const subscriptionsToRemove = await this.subscriptionRepository.find({
+        where: { user, url: In(remove) },
+      });
+      subscriptionsToRemove.forEach((sub) => {
+        sub.type = SubscriptionType.REMOVE;
+      });
+      await this.subscriptionRepository.save(subscriptionsToRemove);
     }
 
     // Process additions for the user
     if (add && add.length > 0) {
+      // If the subscription already exists, update the type to ADD
+      const subscriptionsToAdd = await this.subscriptionRepository.find({
+        where: { user, url: In(add) },
+      });
+      subscriptionsToAdd.forEach((sub) => {
+        sub.type = SubscriptionType.ADD;
+      });
+      await this.subscriptionRepository.save(subscriptionsToAdd);
+
+      // If the subscription doesn't exist, create a new subscription
+      const subscriptionUrlsThatAreAlreadyAdded = subscriptionsToAdd.map(
+        (sub) => sub.url,
+      );
+      const subscriptionUrlsThatNeedToBeAdded = add.filter(
+        (url) => !subscriptionUrlsThatAreAlreadyAdded.includes(url),
+      );
+      const newSubscriptions = subscriptionUrlsThatNeedToBeAdded.map((url) =>
+        this.subscriptionRepository.create({
+          url,
+          lastUpdate: new Date().toISOString().slice(0, -1),
+          type: SubscriptionType.ADD,
+          user: user,
+        }),
+      );
+
+      user.subscriptions.push(...newSubscriptions);
+      await this.subscriptionRepository.save(newSubscriptions);
+    }
+
+    /*
       for (const url of add) {
         // Check if the subscription already exists
         let subscription = await this.subscriptionRepository.findOne({
-          where: { url },
+          where: { url, user },
+          relations: ['user'],
         });
 
         // If it doesn't exist, create a new subscription
@@ -85,18 +118,15 @@ export class PodcastService {
           subscription = this.subscriptionRepository.create({
             url,
             lastUpdate: new Date().toISOString().slice(0, -1),
+            type: SubscriptionType.ADD,
+            user: user,
           });
+          user.subscriptions.push(subscription);
           await this.subscriptionRepository.save(subscription);
         }
-
-        // Add the subscription to the user's subscriptions if it's not already there
-        if (!user.subscriptions.find((sub) => sub.id === subscription.id)) {
-          user.subscriptions.push(subscription);
-        }
-
-        await this.userRepository.save(user);
       }
     }
+    */
 
     // Return current UNIX timestamp
     return { timestamp: Math.floor(Date.now() / 1000) };

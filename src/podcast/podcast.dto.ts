@@ -14,7 +14,8 @@ export interface CreateEpisodeActionDto {
 }
 
 export interface SubscriptionResponseDto {
-  subscriptions: string[];
+  add: string[];
+  remove: string[];
   timestamp: number;
 }
 

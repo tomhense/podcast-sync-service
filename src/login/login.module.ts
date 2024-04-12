@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { LoginController } from './login.controller';
 import { LoginService } from './login.service';
-import { AppPassword } from 'src/entities/app-password.entity';
-import { Flow } from 'src/entities/flow.entity';
+import { AppPassword } from '../entities/app-password.entity';
+import { Flow } from '../entities/flow.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([AppPassword, Flow]), AuthModule],
