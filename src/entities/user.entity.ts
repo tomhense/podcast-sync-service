@@ -15,7 +15,7 @@ export class User {
   username: string;
 
   @Column()
-  password: string; // Contains the hashed and salted password
+  passwordHash: string;
 
   @ManyToMany(() => Subscription)
   @JoinTable()

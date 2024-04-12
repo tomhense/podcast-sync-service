@@ -6,7 +6,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Flow } from 'src/entities/flow.entity';
 import { AppController } from 'src/app.controller';
 import { AppPassword } from 'src/entities/app-password.entity';
-import { User } from 'src/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from 'src/auth/auth.service';
 
@@ -23,17 +22,11 @@ export class LoginService {
   ) {}
 
   async removeExpiredFlows() {
-    // Remove expired flows and (if any) their associated app passwords from the database
-
+    // Remove expired flows and (if any)
     const expiredFlows = await this.flowRepository.find({
       where: { expires: new Date(Date.now() + FLOW_EXPIRATION_DURATION_MS) },
     });
-
     expiredFlows.forEach(async (flow) => {
-      if (flow.authenticated) {
-        await this.appPasswordRepository.delete(flow.appPassword);
-      }
-
       await this.flowRepository.delete(flow);
     });
   }
@@ -87,24 +80,8 @@ export class LoginService {
     const user = await this.authService.validateUser(username, password);
     if (!user) return false; // Invalid credentials
 
-    // Generate a random app password
-    const appPasswordPasswordPlain = randomBytes(64).toString('hex');
-
-    // Hash the password
-    const appPasswordPasswordHash = await bcrypt.hash(
-      appPasswordPasswordPlain,
-      SALT_ROUNDS,
-    );
-
-    const appPassword = await this.appPasswordRepository.save({
-      user: user,
-      generatedAt: new Date(),
-      passwordPlain: appPasswordPasswordPlain,
-      passwordHash: appPasswordPasswordHash,
-    });
-
     flow.authenticated = true;
-    flow.appPassword = appPassword;
+    flow.user = user;
     await this.flowRepository.save(flow);
 
     return true;
@@ -118,12 +95,14 @@ export class LoginService {
 
     if (!flow) return 404;
 
-    // Get the app password
-    const appPassword = flow.appPassword;
+    // Generate a random app password
+    const appPasswordPasswordPlain = randomBytes(64).toString('hex');
 
-    // Remove the plain password from the database, from here on only the hash is used
-    appPassword.passwordPlain = null;
-    await this.appPasswordRepository.save(appPassword);
+    await this.appPasswordRepository.save({
+      user: flow.user,
+      generatedAt: new Date(),
+      passwordHash: await bcrypt.hash(appPasswordPasswordPlain, SALT_ROUNDS),
+    });
 
     // Delete the flow from the database
     await this.flowRepository.delete({ flowId });
@@ -134,8 +113,8 @@ export class LoginService {
     );
 
     return {
-      loginName: appPassword.user.username,
-      appPassword: appPassword.passwordPlain,
+      loginName: flow.user.username,
+      appPassword: appPasswordPasswordPlain,
       server: serverUrl,
     };
   }

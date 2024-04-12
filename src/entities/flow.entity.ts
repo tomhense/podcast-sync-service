@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryColumn } from 'typeorm';
-import { AppPassword } from './app-password.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class Flow {
@@ -16,5 +16,5 @@ export class Flow {
   authenticated: boolean;
 
   @Column()
-  appPassword: AppPassword;
+  user: User;
 }

@@ -10,9 +10,6 @@ export class AppPassword {
   passwordHash: string;
 
   @Column()
-  passwordPlain: string;
-
-  @Column()
   generatedAt: Date;
 
   @Column()

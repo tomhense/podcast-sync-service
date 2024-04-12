@@ -29,7 +29,7 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(plainPassword, SALT_ROUNDS); // bcrypt is used for hashing passwords securely
     const user = this.userRepository.create({
       username,
-      password: hashedPassword,
+      passwordHash: hashedPassword,
     });
     return this.userRepository.save(user);
   }
@@ -59,7 +59,7 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: { username: username },
     });
-    user.password = hashedPassword;
+    user.passwordHash = hashedPassword;
     return this.userRepository.save(user);
   }
 }
